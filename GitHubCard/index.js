@@ -26,11 +26,24 @@ axios.get('https://api.github.com/users/cqian12')
 let cards = document.querySelector('.cards')
 
 axios.get('https://api.github.com/users/cqian12')
-.then(res => {
-  let myCard = createCard(res.data)
-  cards.appendChild(myCard)
-})
-.catch(err => console.log(err.message))
+  .then(res => {
+    let myCard = createCard(res.data)
+    cards.appendChild(myCard)
+
+    axios.get(`${res.data.followers_url}`)
+      .then (response => {
+        let followers = response.data
+        followers.forEach((follower) => {
+          axios.get(`https://api.github.com/users/${follower.login}`)
+            .then (res => {
+              cards.appendChild(createCard(res.data))
+            })
+            .catch(err => console.log(err.message))
+        })
+      })
+      .catch(err => console.log(err.message))
+    })
+  .catch(err => console.log(err.message))
 
 /*
   STEP 5: Now that you have your own card getting added to the DOM, either
@@ -43,15 +56,15 @@ axios.get('https://api.github.com/users/cqian12')
     user, and adding that card to the DOM.
 */
 
-const followersArray = ['Jie-chelchel','rkshockey','Raj-04','tetondan','dustinmyers','justsml','luishrd','bigknell'];
+// const followersArray = ['Jie-chelchel','rkshockey','Raj-04','tetondan','dustinmyers','justsml','luishrd','bigknell'];
 
-followersArray.forEach((user) => {
-  axios.get(`https://api.github.com/users/${user}`)
-  .then (res => {
-    cards.appendChild(createCard(res.data))
-  })
-})
-.catch(err => console.log(err.message))
+// followersArray.forEach((user) => {
+//   axios.get(`https://api.github.com/users/${user}`)
+//   .then (res => {
+//     cards.appendChild(createCard(res.data))
+//   })
+// })
+// .catch(err => console.log(err.message))
 
 /*
   STEP 3: Create a function that accepts a single object as its only argument.
@@ -98,12 +111,12 @@ function createCard (user) {
   name.textContent = user.name
   username.textContent = user.login
   location.textContent = `Location: ${user.location}`
-  profile.textContent = "Profile:"
+  profile.textContent = "Profile: "
   htmlU.href = user.html_url
   htmlU.textContent = user.html_url
-  followers.textContent = user.followers
-  following.textContent = user.following
-  bio.textContent = user.bio
+  followers.textContent = `Followers: ${user.followers}`
+  following.textContent = `Following: ${user.following}`
+  bio.textContent = `Bio: ${user.bio}`
 
   //appends for various elements
   card.appendChild(pic)
